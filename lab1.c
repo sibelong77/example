@@ -267,7 +267,7 @@ void printPreorderc(Coach_type* node)
      /* first print data of node */
      printf("ID: %d\n",node->coach_id);  
   
-     /* then recur on left sutree */
+     /* then recur on left subtree */
      printPreorderc(node->leftc);   
   
      /* now recur on right subtree */
