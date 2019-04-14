@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
- int passid=0;
+int passid=0;
 int coachID=0;
 int k=0;
 typedef struct Passenger_tag
@@ -219,19 +219,45 @@ Coach_type* addcoach(Coach_type* head, Coach_type* node){
 	/* return the (unchanged) node pointer */
 	return head;
 }
-Passenger_type* BookTicket(Passenger_type* head, Passenger_type* node){
+Passenger_type* BookTicket(Passenger_type* head, Passenger_type* node, Coach_type * chead){
+			
     if(head==NULL){
         return node;
     }
     if(strcmp(node->name, head->name)<0){
-        head->leftp=BookTicket(head->leftp, node);
+        head->leftp=BookTicket(head->leftp, node,chead);
     }
     else if(strcmp(node->name, head->name)>0){
-        head->rightp=BookTicket(head->rightp, node);
+        head->rightp=BookTicket(head->rightp, node,chead);
     }
     else{
         return head;
     }
+    Coach_type * ccpy ;
+	ccpy = chead ;
+	while(chead->seat[40].booked==1)
+	{
+		if(chead->rightc == NULL)
+			chead=chead->leftc;
+		else
+			chead=chead->rightc;
+	}
+	if(chead==NULL)
+	{
+		printf("Passenger to be added to RAC list\n");
+		int pnew=(passid%40);
+		strcpy(ccpy->seat[pnew].name1,node->name);
+		ccpy->seat[pnew].age1=node->age;
+		ccpy->seat[pnew].id1=passid;
+	}
+	else
+	{
+		int pnew=(passid%40);
+		chead->seat[pnew].booked = 1 ;
+		strcpy(chead->seat[pnew].name,node->name);
+		chead->seat[pnew].age=node->age;
+		chead->seat[pnew].id=passid;		
+	}
     head->heightp=1+max(hp(head->leftp), hp(head->rightp));
     int  balance=getBalancep(head);
     
@@ -465,7 +491,7 @@ int main()
             }
       case 2:
 	        {
-               phead=BookTicket(phead,initpassNode());
+               phead=BookTicket(phead,initpassNode(),head1);
                //printPreorder(phead);
                break;
             }
@@ -489,7 +515,7 @@ int main()
       case 5:
 	        {
 	         printPreorder(phead);
-		     break;
+			 break;
 	        }
       case 6:{
                flag=0;
