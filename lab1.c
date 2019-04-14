@@ -1,8 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-static int passid=0;
-static int coachid=0;
+ int passid=0;
+int coachID=0;
+int k=0;
 typedef struct Passenger_tag
 {
     char name[100];
@@ -16,7 +17,6 @@ typedef struct Passenger_tag
     struct Passenger_tag* leftp;
     struct Passenger_tag* rightp;
 }Passenger_type;
-
 typedef struct Seat_tag
 {
     int booked;
@@ -35,6 +35,7 @@ typedef struct Seat_tag
 typedef struct Coach_tag
 {
     int coach_id;
+    int key;
     Seat_type seat[41];
     Passenger_type* passenger_ptr;
     Passenger_type* rac_passenger_ptr;
@@ -43,12 +44,13 @@ typedef struct Coach_tag
     struct Coach_tag* rightc;
 }Coach_type;
 
-int max(int a,int b){
+int max(int a,int b)
+{
     return (a > b)? a : b;
 }
-Passenger_type* initpassNode(Passenger_type* head){
+Passenger_type* initpassNode(){
     int j;
-    head=(Passenger_type*)malloc(sizeof(Passenger_type));
+    Passenger_type* head=(Passenger_type*)malloc(sizeof(Passenger_type));
     printf("Enter the name of Passenger\n");
     scanf("%s",head->name);
     printf("Enter the address\n");
@@ -65,10 +67,12 @@ Passenger_type* initpassNode(Passenger_type* head){
     head->rightp= head->leftp= NULL;
     return head;
 }
-Coach_type* initcoachNode(Coach_type* head){
-    head=(Coach_type*)malloc(sizeof(Coach_type));
-    coachid++;
-    head->coach_id=coachid;
+Coach_type* initcoachNode(){
+    Coach_type* head=(Coach_type*)malloc(sizeof(Coach_type));
+    k++;
+    head->key=k;
+    coachID=coachID+1;
+    head->coach_id=coachID;
     int i;
     for(i=0;i<40;i++)
     {
@@ -179,10 +183,10 @@ Coach_type* addcoach(Coach_type* head, Coach_type* node){
     if(head==NULL){
         return node;
     }
-    if(node->coach_id < head->coach_id){
+    if(node->key < head->key){
         head->leftc=addcoach(head->leftc, node);
     }
-    else if(node->coach_id > head->coach_id){
+    else if(node->key > head->key){
         head->rightc=addcoach(head->rightc, node);
     }
     else{
@@ -190,22 +194,23 @@ Coach_type* addcoach(Coach_type* head, Coach_type* node){
     }
     head->heightc=1+max(hc(head->leftc), hc(head->rightc));
     int  balance=getBalancec(head);
-    if (balance > 1 && node->coach_id < head->coach_id)
+    
+    if (balance > 1 &&(node->key < head->key))
 		return rightRotatec(head);
 
 	// Right Right Case
-	if (balance < -1 && node->coach_id > head->coach_id)
+	if (balance < -1 && (node->key > head->key))
 		return leftRotatec(head);
 
 	// Left Right Case
-	if (balance > 1 && node->coach_id > head->leftc->coach_id)
+	if (balance > 1 && (node->key > head->leftc->key))
 	{
 		head->leftc = leftRotatec(head->leftc);
 		return rightRotatec(head);
 	}
 
 	// Right Left Case
-	if (balance < -1 &&  node->coach_id < head->rightc->coach_id)
+	if (balance < -1 && (node->key < head->rightc->key))
 	{
 		head->rightc = rightRotatec(head->rightc);
 		return leftRotatec(head);
@@ -214,21 +219,22 @@ Coach_type* addcoach(Coach_type* head, Coach_type* node){
 	/* return the (unchanged) node pointer */
 	return head;
 }
-Passenger_type* initpass(Passenger_type* head, Passenger_type* node){
+Passenger_type* BookTicket(Passenger_type* head, Passenger_type* node){
     if(head==NULL){
         return node;
     }
     if(strcmp(node->name, head->name)<0){
-        head->leftp=initpass(head->leftp, node);
+        head->leftp=BookTicket(head->leftp, node);
     }
     else if(strcmp(node->name, head->name)>0){
-        head->rightp=initpass(head->rightp, node);
+        head->rightp=BookTicket(head->rightp, node);
     }
     else{
         return head;
     }
     head->heightp=1+max(hp(head->leftp), hp(head->rightp));
     int  balance=getBalancep(head);
+    
     if (balance > 1 && strcmp(node->name, head->leftp->name)<0)
 		return rightRotatep(head);
 
@@ -253,16 +259,173 @@ Passenger_type* initpass(Passenger_type* head, Passenger_type* node){
 	/* return the (unchanged) node pointer */
 	return head;
 }
-
-void  preOrderp(Passenger_type* head, char* str){
-    int i;
-    if(head!=NULL){
-        if(strcmp(head->name, str)==0){
-            printf("Name: %s\nPreference: %s\nID: %d\n", head->name, head->preference, head->pass_id);
-        }
-        preOrderp(head->leftp, str);
-        preOrderp(head->rightp, str);
-    }
+void printPreorderc(Coach_type* node) 
+{ 
+     if (node == NULL) 
+          return; 
+  
+     /* first print data of node */
+     printf("ID: %d\n",node->coach_id);  
+  
+     /* then recur on left sutree */
+     printPreorderc(node->leftc);   
+  
+     /* now recur on right subtree */
+     printPreorderc(node->rightc); 
+}     
+void printPreorder(Passenger_type* node) 
+{ 
+     if (node == NULL) 
+          return; 
+  
+     /* first print data of node */
+     printf("Name: %s\nPreference: %s\nID: %d\n", node->name, node->preference, node->pass_id);  
+  
+     /* then recur on left sutree */
+     printPreorder(node->leftp);   
+  
+     /* now recur on right subtree */
+     printPreorder(node->rightp); 
+}     
+void preference_transform(int age[],char berth[][100],char name[][100],int num)
+{
+	int i,j,len,index=0,index1=0,temp1;
+	len=num;
+	int temp_age[100];
+	char temp_name[100][100],temp_berth[100][100];
+	char temp2[100],temp3[100];
+	
+	for(i=0;i<len;i++)
+	{
+		if(strcmp(berth[i],"lower")==0 || strcmp(berth[i],"side_lower")==0)
+		{
+			temp_age[index]=age[i];
+			strcpy(temp_name[index],name[i]);
+			strcpy(temp_berth[index],berth[i]);
+			index++;
+		}
+	}
+	for(i=0;i<index;i++)
+	{
+		for(j=0;j<index-i-1;j++)
+		{
+			if((temp_age[j]>=15 || temp_age[j]<=60) && (temp_age[j+1]<15 || temp_age[j+1]>60))
+			{
+				temp1=temp_age[j];
+				temp_age[j]=temp_age[j+1];
+				temp_age[j+1]=temp1;
+				
+				strcpy(temp2,temp_name[j]);
+				strcpy(temp_name[j],temp_name[j+1]);
+				strcpy(temp_name[j+1],temp2);
+				
+				strcpy(temp3,temp_berth[j]);
+				strcpy(temp_berth[j],temp_berth[j+1]);
+				strcpy(temp_berth[j+1],temp3);
+			}
+		}
+	}
+	
+	for(i=0;i<len;i++)
+	{
+		if(strcmp(berth[i],"lower")==0 || strcmp(berth[i],"side_lower")==0)
+		{
+			strcpy(berth[i],temp_berth[index1]);
+			strcpy(name[i],temp_name[index1]);
+			age[i]=temp_age[index1];
+			index1++;
+		}
+	}
+}
+Passenger_type* minValueNode(Passenger_type* node) 
+{ 
+    Passenger_type* current = node; 
+    while (current->leftp != NULL) 
+        current = current->leftp; 
+  
+    return current;
+}
+Passenger_type* cancelticket(Passenger_type* root, int pid) 
+{ 
+  
+    if (root == NULL) 
+        return root; 
+  
+    
+    if ( pid < root->pass_id ) 
+        root->leftp = cancelticket(root->leftp,pid); 
+  
+    else if( pid > root->pass_id ) 
+        root->rightp = cancelticket(root->rightp,pid); 
+  
+    else
+    { 
+        if( (root->leftp == NULL) || (root->rightp == NULL) ) 
+        { 
+            Passenger_type *temp = root->leftp ? root->leftp : 
+                                             root->rightp; 
+  
+           
+             if (temp == NULL) 
+            { 
+                temp = root; 
+                root = NULL; 
+            } 
+            else
+             *root = *temp; 
+            free(temp); 
+        } 
+        else
+        { 
+            
+            Passenger_type* temp = minValueNode(root->rightp); 
+            root->pass_id = temp->pass_id; 
+            root->rightp = cancelticket(root->rightp, temp->pass_id); 
+        } 
+    } 
+  
+    if (root == NULL) 
+      return root; 
+  
+    root->heightp = 1 + max(hp(root->leftp),hp(root->rightp)); 
+  
+     int balance = getBalancep(root); 
+  
+    if (balance > 1 && getBalancep(root->leftp) >= 0) 
+        return rightRotatep(root); 
+  
+    // Left Right Case 
+    if (balance > 1 && getBalancep(root->leftp) < 0) 
+    { 
+        root->leftp =  leftRotatep(root->leftp); 
+        return rightRotatep(root); 
+    } 
+  
+    // Right Right Case 
+    if (balance < -1 && getBalancep(root->rightp) <= 0) 
+        return leftRotatep(root); 
+  
+    // Right Left Case 
+    if (balance < -1 && getBalancep(root->rightp) > 0) 
+    { 
+        root->rightp= rightRotatep(root->rightp); 
+        return leftRotatep(root); 
+    } 
+  
+    return root; 
+} 
+void range(Passenger_type* node,int k1,int k2)
+{
+	if(node==NULL)
+	{
+		return;
+	}
+	if(node->pass_id>=k1 && node->pass_id<=k2)
+	{
+	   printf("Name: %s\nPreference: %s\nID: %d\n", node->name, node->preference, node->pass_id);	
+	}
+	range(node->leftp,k1,k2);
+	range(node->rightp,k1,k2);
 }
 int main()
 {
@@ -296,17 +459,38 @@ int main()
    {
 
      case 1:{
-                head1=addcoach(head1,initcoachNode(head1));
-                printf("Coach added with ID=%d",head1->coach_id);
+                head1=addcoach(head1,initcoachNode());
+                printPreorderc(head1);
                 break;
             }
       case 2:
 	        {
-               phead=initpass(phead,initpassNode(phead));
-               preOrderp(phead,phead->name);
+               phead=BookTicket(phead,initpassNode());
+               //printPreorder(phead);
                break;
             }
-      
+      case 3:{
+      	      int pid;
+      	      printf("Enter the Passenger Id to Cancel:");
+      	      scanf("%d",&pid);
+      	      phead=cancelticket(phead,pid);
+      	      //printPreorder(phead);
+		      break;
+		     }
+      case 4:
+	        {
+	          int k1,k2;
+			  printf("Enter the lower and upper limits\n");
+		      scanf("%d %d",&k1,&k2);
+	          range(phead,k1,k2);
+		      break;
+	        }
+      	    
+      case 5:
+	        {
+	         printPreorder(phead);
+		     break;
+	        }
       case 6:{
                flag=0;
                break;
