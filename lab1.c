@@ -220,7 +220,11 @@ Coach_type* addcoach(Coach_type* head, Coach_type* node){
 	return head;
 }
 Passenger_type* BookTicket(Passenger_type* head, Passenger_type* node, Coach_type * chead){
-			
+	if(coachID==0)
+	{
+		printf("No coaches added. Error");
+		return ;		
+	}			
     if(head==NULL){
         return node;
     }
