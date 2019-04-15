@@ -3,6 +3,11 @@
 #include<string.h>
 int passid=0;
 int coachID=0;
+int lower = 1;
+int upper = 11;
+int middle = 21;
+int sideupper = 31 ;
+int sidelower = 36 ;
 int k=0;
 typedef struct Passenger_tag
 {
@@ -249,14 +254,66 @@ Passenger_type* BookTicket(Passenger_type* head, Passenger_type* node, Coach_typ
 	if(chead==NULL)
 	{
 		printf("Passenger to be added to RAC list\n");
-		int pnew=(passid%40);
+		int pnew=(passid%10)+30;
 		strcpy(ccpy->seat[pnew].name1,node->name);
 		ccpy->seat[pnew].age1=node->age;
 		ccpy->seat[pnew].id1=passid;
 	}
 	else
 	{
-		int pnew=(passid%40);
+		int pnew=passid%40;
+		/**
+		if(strcmp(node->preference,"lower")==0)
+		{
+			if(lower>10)
+			{
+				lower-=10;
+			}
+			pnew=lower;
+			lower++;
+		}
+		else if(strcmp(node->preference,"upper")==0)
+		{
+			if(upper>20)
+			{
+				upper-=10;
+			}
+			pnew=upper;
+			upper++;
+		}
+		else if(strcmp(node->preference,"middle")==0)
+		{
+			if(middle>30)
+			{
+				middle-=10;
+			}
+			pnew=middle;
+			middle++;
+		}
+		else if(strcmp(node->preference,"side-upper")==0)
+		{
+			if(sideupper>35)
+			{
+				sideupper-=5;
+			}
+			pnew=sideupper;
+			sideupper++;
+		}
+		else if(strcmp(node->preference,"side-lower")==0)
+		{
+			if(sidelower>40)
+			{
+				sidelower-=5;
+			}
+			pnew=sidelower;
+			sidelower++;
+		}
+		else
+		{
+			printf("Invalid preference.Book again");
+			return;
+		}
+		**/
 		chead->seat[pnew].booked = 1 ;
 		strcpy(chead->seat[pnew].name,node->name);
 		chead->seat[pnew].age=node->age;
